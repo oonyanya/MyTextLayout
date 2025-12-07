@@ -18,7 +18,6 @@ namespace MyTextLayout_winui3
 {
     public class MyTextLayout
     {
-        const float desiredFontSize = 20.0f;
         List<Rect> layoutRectangles;
         List<LayoutBox> layoutBoxes;
         List<KeyValuePair<CanvasCharacterRange, CanvasSolidColorBrush>> foregroundColors = new List<KeyValuePair<CanvasCharacterRange, CanvasSolidColorBrush>>();
@@ -1034,8 +1033,35 @@ namespace MyTextLayout_winui3
                             //
                             // The Arabic test string contains control characters. A typical text renderer will just not draw these.
                             //
-                            if (g.FormattingSpan.Script.Shape == CanvasScriptShape.NoVisual && IsDrawControlCode == false)
+                            if (g.FormattingSpan.Script.Shape == CanvasScriptShape.NoVisual)
                             {
+                                if(IsDrawControlCode == false) 
+                                {
+                                }
+                                else
+                                {
+                                    //コントロールコードを描く
+                                    var s = this.text.Substring(g.FormattingSpan.Range.CharacterIndex, g.FormattingSpan.Range.CharacterCount);
+                                    byte[] bytes = new byte[s.Length * sizeof(char)];
+                                    System.Buffer.BlockCopy(s.ToCharArray(), 0, bytes, 0, bytes.Length);
+
+                                    var formatted_str = new System.Text.StringBuilder();
+                                    for(int i = 0; i < bytes.Length; i++)
+                                    {
+                                        formatted_str.AppendFormat("{0:00}\n", bytes[i]);
+                                    }
+
+                                    var controlTextFormat = new CanvasTextFormat();
+                                    controlTextFormat.FontFamily = this.TextFormat.FontFamily;
+                                    controlTextFormat.FontSize = this.TextFormat.FontSize / 4;
+
+                                    var height = (float)l.Rectangle.Bottom - 4;
+                                    var textlayout = new CanvasTextLayout(DrawingSession, formatted_str.ToString(), controlTextFormat, advance - 4, height);
+                                    DrawingSession.DrawTextLayout(textlayout, new Vector2(position.X + 4, position.Y + 4), g.FormattingSpan.ForegroundColor);
+                                    DrawingSession.DrawRectangle(position.X + 2, position.Y + 2, advance - 4, height, g.FormattingSpan.ForegroundColor);
+
+                                    controlTextFormat.Dispose();
+                                }
                             }
                             else
                             {

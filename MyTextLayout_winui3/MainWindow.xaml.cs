@@ -30,7 +30,7 @@ namespace MyTextLayout_winui3
     public sealed partial class MainWindow : Window
     {
         int caretIndex = 0;
-        static string text = "🧔🏽‍♂️ is ヒゲの男性: 肌色";
+        static string text = "🧔🏽‍♂️ is ヒゲの男性: 肌色." + "\x02" + "test" + "\x01" + "test";
         MyTextLayout layout = new MyTextLayout(text);
         bool inited = false;
 
@@ -45,7 +45,7 @@ namespace MyTextLayout_winui3
             {
                 layout.DefaultForegorundBrush = new CanvasSolidColorBrush(sender, Colors.Black);
                 //layout.SetForgroundColor(new CanvasCharacterRange() { CharacterIndex = 0, CharacterCount = 2 }, new CanvasSolidColorBrush(sender, Colors.Blue));
-                layout.IsDrawControlCode = false;
+                layout.IsDrawControlCode = true;
                 layout.TextFormat = new CanvasTextFormat() { FontFamily = this.Canvas.FontFamily.Source };
                 layout.TextDirection = CanvasTextDirection.LeftToRightThenTopToBottom;
                 layout.RequireSize = new Windows.Foundation.Size(1000, 500);
