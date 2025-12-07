@@ -991,11 +991,16 @@ namespace MyTextLayout_winui3
             }
         }
 
-        public void HitText(double x, double y, out CanvasTextLayoutRegion region)
+        public bool HitText(double x, double y, out CanvasTextLayoutRegion region)
         {
-            region = this.GetCharacterRegions().Where((r) => {
+            var regions = this.GetCharacterRegions().Where((r) => {
                 return x >= r.LayoutBounds.Left && x < r.LayoutBounds.Right && y >= r.LayoutBounds.Top && y < r.LayoutBounds.Bottom;
-            }).First();
+            });
+            region = regions.FirstOrDefault();
+            if (regions.Count() > 0)
+                return true;
+            else
+                return false;
         }
 
         public void Draw(CanvasDrawingSession DrawingSession,float posx,float posy)

@@ -30,6 +30,7 @@ namespace MyTextLayout_winui3
     public sealed partial class MainWindow : Window
     {
         int caretIndex = 0;
+        Point? tappedPoint = null;
         static string text = "🧔🏽‍♂️ is ヒゲの男性: 肌色." + "\x02" + "test" + "\x01" + "test";
         MyTextLayout layout = new MyTextLayout(text);
         bool inited = false;
@@ -78,13 +79,22 @@ namespace MyTextLayout_winui3
             {
                 layout.GetCaretPosition(caretIndex, false, out r);
                 caretIndex = r.CharacterIndex + r.CharacterCount - 1;
-                args.DrawingSession.DrawRectangle(r.LayoutBounds, Colors.Black, 4.0f);
+                args.DrawingSession.DrawRectangle(r.LayoutBounds, Colors.Gray, 4.0f);
             }
 
-            const float posx = 25, posy = 10;
-            layout.HitText(posx, posy, out r);
-            args.DrawingSession.DrawCircle(posx, posy, 1, Colors.Green);
-            args.DrawingSession.DrawRoundedRectangle(r.LayoutBounds, 5, 5, Colors.Blue);
+            if(tappedPoint != null)
+            {
+                float posx = (float)tappedPoint.Value.X, posy = (float)tappedPoint.Value.Y;
+                if(layout.HitText(posx, posy, out r))
+                {
+                    args.DrawingSession.DrawCircle(posx, posy, 2, Colors.Green);
+                    args.DrawingSession.DrawRoundedRectangle(r.LayoutBounds, 5, 5, Colors.Blue);
+                }
+                else
+                {
+                    tappedPoint = null;
+                }
+            }
 
         }
 
@@ -100,6 +110,12 @@ namespace MyTextLayout_winui3
                 caretIndex++;
                 if (caretIndex >= text.Length) caretIndex = text.Length - 1;
             }
+            this.Canvas.Invalidate();
+        }
+
+        private void Grid_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            this.tappedPoint = e.GetPosition(this.Canvas);
             this.Canvas.Invalidate();
         }
     }

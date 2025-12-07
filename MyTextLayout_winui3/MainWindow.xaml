@@ -14,7 +14,7 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid KeyDown="Grid_KeyDown">
+    <Grid KeyDown="Grid_KeyDown" Tapped="Grid_Tapped">
         <canvas:CanvasControl Draw="CanvasControl_Draw" x:Name="Canvas" />
     </Grid>
 </Window>
