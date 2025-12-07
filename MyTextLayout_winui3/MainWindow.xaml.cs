@@ -31,7 +31,8 @@ namespace MyTextLayout_winui3
     {
         int caretIndex = 0;
         Point? tappedPoint = null;
-        static string text = "🧔🏽‍♂️ is ヒゲの男性: 肌色." + "\x02" + "test" + "\x01" + "test";
+        static string text = "🧔🏽‍♂️ is ヒゲの男性: 肌色." + "\x02" + "test" + "\x01" + "六　大会社　次に掲げる要件のいずれかに該当する株式会社をいう。イ　最終事業年度に係る貸借対照表（第439条前段に規定する場合にあっては、同条の規定により定時株主総会に報告された貸借対照表をいい、株式会社の成立後最初の定時株主総会までの間においては、第435条第1項の貸借対照表をいう。ロにおいて同じ。）に資本金として計上した額が5億円以上であること。ロ　最終事業年度に係る貸借対照表の負債の部に計上した額の合計額が200億円以上であること。";
+        const float margin = 100;
         MyTextLayout layout = new MyTextLayout(text);
         bool inited = false;
 
@@ -59,19 +60,21 @@ namespace MyTextLayout_winui3
 
             for (int i = 0; i < 1; i++)
             {
-                layout.Draw(args.DrawingSession, 0, i * (float)actualSize.Height);
+                layout.Draw(args.DrawingSession, 0, margin + i * (float)actualSize.Height);
             }
 
             var regions = layout.GetCharacterRegions();
             foreach (CanvasTextLayoutRegion region in regions)
             {
-                args.DrawingSession.DrawRectangle(region.LayoutBounds, Colors.Red);
+                var rect = new Rect(region.LayoutBounds.Left, region.LayoutBounds.Top + margin, region.LayoutBounds.Width, region.LayoutBounds.Height);
+                args.DrawingSession.DrawRectangle(rect, Colors.Red);
             }
 
             regions = layout.GetCharacterRegions(1, 10);
             foreach (CanvasTextLayoutRegion region in regions)
             {
-                args.DrawingSession.DrawRectangle(region.LayoutBounds, Colors.Green);
+                var rect = new Rect(region.LayoutBounds.Left, region.LayoutBounds.Top + margin, region.LayoutBounds.Width, region.LayoutBounds.Height);
+                args.DrawingSession.DrawRectangle(rect, Colors.Green);
             }
 
             CanvasTextLayoutRegion r;
@@ -79,16 +82,19 @@ namespace MyTextLayout_winui3
             {
                 layout.GetCaretPosition(caretIndex, false, out r);
                 caretIndex = r.CharacterIndex + r.CharacterCount - 1;
-                args.DrawingSession.DrawRectangle(r.LayoutBounds, Colors.Gray, 4.0f);
+                var rect = new Rect(r.LayoutBounds.Left, r.LayoutBounds.Top + margin, r.LayoutBounds.Width, r.LayoutBounds.Height);
+                args.DrawingSession.DrawRectangle(rect, Colors.Gray, 4.0f);
             }
 
             if(tappedPoint != null)
             {
-                float posx = (float)tappedPoint.Value.X, posy = (float)tappedPoint.Value.Y;
+                //ヒットテストはマージンを考慮しないのであらかじめ引いておく
+                float posx = (float)tappedPoint.Value.X, posy = (float)tappedPoint.Value.Y - margin;
                 if(layout.HitText(posx, posy, out r))
                 {
-                    args.DrawingSession.DrawCircle(posx, posy, 2, Colors.Green);
-                    args.DrawingSession.DrawRoundedRectangle(r.LayoutBounds, 5, 5, Colors.Blue);
+                    args.DrawingSession.DrawCircle(posx, posy + margin, 2, Colors.Green);
+                    var rect = new Rect(r.LayoutBounds.Left, r.LayoutBounds.Top + margin, r.LayoutBounds.Width, r.LayoutBounds.Height);
+                    args.DrawingSession.DrawRoundedRectangle(rect, 5, 5, Colors.Blue);
                 }
                 else
                 {
