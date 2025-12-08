@@ -39,7 +39,8 @@ namespace MyTextLayout_winui3
                     "الفئة CanvasTextAnalyzer يحدد ما هي الرموز المطلوبة لتقديم قطعة من " +
                     "النص، بما في ذلك أساسات الخط إلى التعامل مع لغات مختلفة. Example Gallery يستخدم هذه الطقنيه لعرض كيفية التعامل مع النصوص.";
         */
-        const float margin = 100;
+        const float marginx = 100;
+        const float marginy = 100;
         MyTextLayout layout = new MyTextLayout(text);
         bool inited = false;
 
@@ -55,8 +56,9 @@ namespace MyTextLayout_winui3
                 layout.DefaultForegorundBrush = new CanvasSolidColorBrush(sender, Colors.Black);
                 //layout.SetForgroundColor(new CanvasCharacterRange() { CharacterIndex = 0, CharacterCount = 2 }, new CanvasSolidColorBrush(sender, Colors.Blue));
                 layout.IsDrawControlCode = true;
-                layout.TextFormat = new CanvasTextFormat() { FontFamily = this.Canvas.FontFamily.Source };
+                 layout.TextFormat = new CanvasTextFormat() { FontFamily = this.Canvas.FontFamily.Source };
                 layout.TextDirection = CanvasTextDirection.LeftToRightThenTopToBottom;
+                //layout.TextDirection = CanvasTextDirection.RightToLeftThenTopToBottom;
                 layout.RequireSize = new Windows.Foundation.Size(1000, 500);
                 inited = true;
             }
@@ -67,20 +69,20 @@ namespace MyTextLayout_winui3
 
             for (int i = 0; i < 1; i++)
             {
-                layout.Draw(args.DrawingSession, 0, margin + i * (float)actualSize.Height);
+                layout.Draw(args.DrawingSession, marginx, marginy + i * (float)actualSize.Height);
             }
 
             var regions = layout.GetCharacterRegions();
             foreach (CanvasTextLayoutRegion region in regions)
             {
-                var rect = new Rect(region.LayoutBounds.Left, region.LayoutBounds.Top + margin, region.LayoutBounds.Width, region.LayoutBounds.Height);
+                var rect = new Rect(region.LayoutBounds.Left + marginx, region.LayoutBounds.Top + marginy, region.LayoutBounds.Width, region.LayoutBounds.Height);
                 args.DrawingSession.DrawRectangle(rect, Colors.Red);
             }
 
             regions = layout.GetCharacterRegions(1, 10);
             foreach (CanvasTextLayoutRegion region in regions)
             {
-                var rect = new Rect(region.LayoutBounds.Left, region.LayoutBounds.Top + margin, region.LayoutBounds.Width, region.LayoutBounds.Height);
+                var rect = new Rect(region.LayoutBounds.Left + marginx, region.LayoutBounds.Top + marginy, region.LayoutBounds.Width, region.LayoutBounds.Height);
                 args.DrawingSession.DrawRectangle(rect, Colors.Green);
             }
 
@@ -89,18 +91,18 @@ namespace MyTextLayout_winui3
             {
                 layout.GetCaretPosition(caretIndex, false, out r);
                 caretIndex = r.CharacterIndex + r.CharacterCount - 1;
-                var rect = new Rect(r.LayoutBounds.Left, r.LayoutBounds.Top + margin, r.LayoutBounds.Width, r.LayoutBounds.Height);
+                var rect = new Rect(r.LayoutBounds.Left + marginx, r.LayoutBounds.Top + marginy, r.LayoutBounds.Width, r.LayoutBounds.Height);
                 args.DrawingSession.DrawRectangle(rect, Colors.Gray, 4.0f);
             }
 
             if(tappedPoint != null)
             {
                 //ヒットテストはマージンを考慮しないのであらかじめ引いておく
-                float posx = (float)tappedPoint.Value.X, posy = (float)tappedPoint.Value.Y - margin;
+                float posx = (float)tappedPoint.Value.X - marginx, posy = (float)tappedPoint.Value.Y - marginy;
                 if(layout.HitText(posx, posy, out r))
                 {
-                    args.DrawingSession.DrawCircle(posx, posy + margin, 2, Colors.Green);
-                    var rect = new Rect(r.LayoutBounds.Left, r.LayoutBounds.Top + margin, r.LayoutBounds.Width, r.LayoutBounds.Height);
+                    args.DrawingSession.DrawCircle(posx, posy + marginy, 2, Colors.Green);
+                    var rect = new Rect(r.LayoutBounds.Left + marginx, r.LayoutBounds.Top + marginy, r.LayoutBounds.Width, r.LayoutBounds.Height);
                     args.DrawingSession.DrawRoundedRectangle(rect, 5, 5, Colors.Blue);
                 }
                 else

@@ -2,16 +2,17 @@
 //
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Numerics;
+using Microsoft.UI.Xaml.Documents;
 using Windows.Foundation;
 
 namespace MyTextLayout_winui3
@@ -926,12 +927,28 @@ namespace MyTextLayout_winui3
             foreach (var box in layoutBoxes)
             {
                 float posx = 0;
-                foreach(var glyphRunIndex in box.BidiOrdering)
+                float layoutAdvance = 0;
+
+                foreach (var g in box.GlyphRuns)
+                {
+                    layoutAdvance += g.GetAdvance();
+                }
+
+
+                if (TextDirection == CanvasTextDirection.RightToLeftThenTopToBottom)
+                    posx = (float)box.Rectangle.Width - layoutAdvance;
+
+                foreach (var glyphRunIndex in box.BidiOrdering)
                 {
                     var run = box.GlyphRuns[glyphRunIndex];
 
                     if (run.Glyphs.Count == 0)
                         continue;
+
+                    Vector2 position;
+                    position.X = posx;
+                    position.Y = posy;
+                    float advance = (float)run.GetAdvance();
 
                     var range = run.GetRange();
                     var clusterMap = run.GetClusterMap(range).GroupBy(n => n);
@@ -943,14 +960,16 @@ namespace MyTextLayout_winui3
                         result.CharacterCount = cluster.Count();
                         result.LayoutBounds = new Rect()
                         {
-                            X = posx,
-                            Y = posy,
+                            X = position.X,
+                            Y = position.Y,
                             Width = run.Glyphs[i].Advance,
                             Height = box.Rectangle.Height,
                         };
                         yield return result;
-                        posx += run.Glyphs[i].Advance;
+                        position.X += run.Glyphs[i].Advance;
                     }
+
+                    posx += advance;
                 }
                 posy += (float)box.Rectangle.Height;
             }
@@ -985,7 +1004,7 @@ namespace MyTextLayout_winui3
                         layoutAdvance += g.GetAdvance();
                     }
 
-                    float x = (float)l.Rectangle.Left + posx;
+                    float x = (float)l.Rectangle.Left;
 
                     if (TextDirection == CanvasTextDirection.RightToLeftThenTopToBottom)
                         x = (float)l.Rectangle.Right - layoutAdvance;
@@ -998,7 +1017,7 @@ namespace MyTextLayout_winui3
                         {
                             float advance = g.GetAdvance();
                             Vector2 position;
-                            position.X = x;
+                            position.X = x + posx;
                             position.Y = posy;
                             //
                             // The Arabic test string contains control characters. A typical text renderer will just not draw these.
