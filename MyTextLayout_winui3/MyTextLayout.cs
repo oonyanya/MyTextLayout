@@ -85,8 +85,9 @@ namespace MyTextLayout_winui3
         {
             this.text = t;
             this.TabWidth = 48;
+            this.TextDirection = CanvasTextDirection.LeftToRightThenTopToBottom;
         }
-        
+
         struct FormattingSpan
         {
             public CanvasGlyph[] Glyphs;
@@ -830,8 +831,6 @@ namespace MyTextLayout_winui3
                 return;
 
             var textFormat = this.TextFormat;
-
-            TextDirection = CanvasTextDirection.LeftToRightThenTopToBottom;
 
             CanvasTextAnalyzer textAnalyzer = new CanvasTextAnalyzer(text, TextDirection);
 
