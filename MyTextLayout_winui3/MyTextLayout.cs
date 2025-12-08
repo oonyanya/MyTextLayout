@@ -934,56 +934,22 @@ namespace MyTextLayout_winui3
                         continue;
 
                     var range = run.GetRange();
-                    var clusterMap = run.GetClusterMap(range);
+                    var clusterMap = run.GetClusterMap(range).GroupBy(n => n);
                     var result = new CanvasTextLayoutRegion();
-                    int previousCluster = 0, sameClusterCount = 0 ;
-                    float advanceWidth = 0;
-                    for(int i = 0; i < clusterMap.Length; i++)
+                    foreach(var cluster in clusterMap)
                     {
-                        var cluster = clusterMap[i];
-                        if(i == 0)
-                        {
-                            previousCluster = cluster;
-                            sameClusterCount = 1;
-                            advanceWidth = 0;
-                        }
-                        else if (previousCluster != cluster)
-                        {
-                            result.CharacterIndex = range.CharacterIndex + previousCluster;
-                            result.CharacterCount = sameClusterCount;
-                            result.LayoutBounds = new Rect()
-                            {
-                                X = posx,
-                                Y = posy,
-                                Width = advanceWidth,
-                                Height = box.Rectangle.Height,
-                            };
-                            yield return result;
-                            posx += advanceWidth;
-                            advanceWidth = 0;
-                            sameClusterCount = 1;
-                            previousCluster = cluster;
-                        }
-                        else
-                        {
-                            sameClusterCount++;
-                        }
-                        if (i < run.Glyphs.Count)
-                            advanceWidth += run.Glyphs[i].Advance;
-                    }
-                    if(sameClusterCount > 0)
-                    {
-                        result.CharacterIndex = range.CharacterIndex + previousCluster;
-                        result.CharacterCount = sameClusterCount;
+                        var i = cluster.Key;
+                        result.CharacterIndex = range.CharacterIndex + i;
+                        result.CharacterCount = cluster.Count();
                         result.LayoutBounds = new Rect()
                         {
                             X = posx,
                             Y = posy,
-                            Width = advanceWidth,
+                            Width = run.Glyphs[i].Advance,
                             Height = box.Rectangle.Height,
                         };
                         yield return result;
-                        posx += advanceWidth;
+                        posx += run.Glyphs[i].Advance;
                     }
                 }
                 posy += (float)box.Rectangle.Height;
