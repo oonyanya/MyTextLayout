@@ -987,7 +987,7 @@ namespace MyTextLayout_winui3
 
                     float x = (float)l.Rectangle.Left + posx;
 
-                    if (TextDirection == CanvasTextDirection.RightToLeftThenBottomToTop)
+                    if (TextDirection == CanvasTextDirection.RightToLeftThenTopToBottom)
                         x = (float)l.Rectangle.Right - layoutAdvance;
 
                     foreach (int glyphRunIndex in l.BidiOrdering)
